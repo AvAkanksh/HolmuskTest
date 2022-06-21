@@ -4,6 +4,30 @@ modules.modelling package
 Submodules
 ----------
 
+modules.modelling.RidgeRegression module
+----------------------------------------
+
+.. automodule:: modules.modelling.RidgeRegression
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modules.modelling.lassoRegression module
+----------------------------------------
+
+.. automodule:: modules.modelling.lassoRegression
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modules.modelling.linearRegression module
+-----------------------------------------
+
+.. automodule:: modules.modelling.linearRegression
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 modules.modelling.modelling module
 ----------------------------------
 

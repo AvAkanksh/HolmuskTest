@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>modules.modelling.linearRegression &mdash; src  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> src
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../HolmuskTest.html">HolmuskTest module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lib.html">lib package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logs.html">logs package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">modules package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">src</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>modules.modelling.linearRegression</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for modules.modelling.linearRegression</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">logs</span> <span class="kn">import</span> <span class="n">logDecorator</span> <span class="k">as</span> <span class="n">lD</span> 
+<span class="kn">import</span> <span class="nn">jsonref</span><span class="o">,</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">linear_model</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span> <span class="k">as</span> <span class="n">mse</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">jsonref</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../config/config.json&#39;</span><span class="p">))</span>
+<span class="n">logBase</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;logging&#39;</span><span class="p">][</span><span class="s1">&#39;logBase&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.modules.modelling.linearRegression&#39;</span>
+<span class="n">linearRegression_json</span> <span class="o">=</span> <span class="n">jsonref</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../config/modelling.json&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="dataExtraction"><a class="viewcode-back" href="../../../modules.modelling.html#modules.modelling.linearRegression.dataExtraction">[docs]</a><span class="nd">@lD</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logBase</span> <span class="o">+</span> <span class="s1">&#39;.dataExtraction&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">dataExtraction</span><span class="p">(</span><span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Extracts the dependent variables and the independent variables fromt he dataset</span>
+<span class="sd">    </span>
+<span class="sd">    It will read the csv file and identifies the X , y of the given dataset and returns them.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logger : {logging.Logger}</span>
+<span class="sd">        The logger used for loggin error</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    </span>
+<span class="sd">    X : The independent variables of the given dataset</span>
+<span class="sd">    y : The dependent variable of the given dataset(end result which we want to predict)</span>
+<span class="sd">    </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dataPath</span> <span class="o">=</span> <span class="n">linearRegression_json</span><span class="p">[</span><span class="s1">&#39;linearRegression&#39;</span><span class="p">][</span><span class="s1">&#39;dataPath&#39;</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">dataPath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div>
+
+<span class="c1"># @lD.log(logBase,&#39;.dataSplitting&#39;)</span>
+<span class="c1"># def dataSplitting(logger,X,y):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     This function splits the data into train and test datasets</span>
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#         logger : {logging.Logger}</span>
+<span class="c1">#         The logger used for loggin error</span>
+        
+<span class="c1">#         X : independent variables from the dataset</span>
+<span class="c1">#         y : dependent variable from the datset</span>
+        
+<span class="c1">#     Returns</span>
+<span class="c1">#     -------</span>
+<span class="c1">#         X_train : data of independent variables from the dataset which is used for training</span>
+<span class="c1">#         X_test : data of independent variables from the dataset which is used for testing</span>
+<span class="c1">#         y_train : data of dependent variables from the dataset which is used for training</span>
+<span class="c1">#         y_test : data of dependent variables from the dataset which is used for testing</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.2)</span>
+<span class="c1">#     return X_train, X_test, y_train, y_test</span>
+
+<div class="viewcode-block" id="modelBuilder"><a class="viewcode-back" href="../../../modules.modelling.html#modules.modelling.linearRegression.modelBuilder">[docs]</a><span class="nd">@lD</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logBase</span><span class="o">+</span><span class="s1">&#39;.modelBuilder&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">modelBuilder</span><span class="p">(</span><span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; This function helps us to build the linear Regression model</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">LinearRegression</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="print_coefficients"><a class="viewcode-back" href="../../../modules.modelling.html#modules.modelling.linearRegression.print_coefficients">[docs]</a><span class="nd">@lD</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logBase</span> <span class="o">+</span> <span class="s1">&#39;.print_coefficients&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">print_coefficients</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span><span class="n">model</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This function helps us to print the cofficents of the trained linear Regression model for the given training dataset.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        logger : {logging.Logger}</span>
+<span class="sd">        The logger used for loggin error</span>
+<span class="sd">        </span>
+<span class="sd">        model : The model which has been trained for the given dataset.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Coefficient of the trained linear Regression model for the given training dataset:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span></div>
+    
+    
+<div class="viewcode-block" id="plot_graphs"><a class="viewcode-back" href="../../../modules.modelling.html#modules.modelling.linearRegression.plot_graphs">[docs]</a><span class="nd">@lD</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logBase</span> <span class="o">+</span> <span class="s1">&#39;.plot_graphs&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">plot_graphs</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This function helps us to visualize the scatter plot of the given data</span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        logger : {logging.Logger}</span>
+<span class="sd">        The logger used for loggin error</span>
+<span class="sd">        X_train : data of independent variables from the dataset which is used for training</span>
+<span class="sd">        y_train : data of dependent variables from the dataset which is used for training</span>
+<span class="sd">        X_test : data of independent variables from the dataset which is used for testing</span>
+<span class="sd">        y_test : The actual traget variable values of the given the test datset</span>
+<span class="sd">        y_pred : The predicted values of the target variable using the model on the test dataset</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;X_train vs y_train&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;X_train&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;y_train&quot;</span><span class="p">)</span>   
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;../results/X_train_VS_y_train_linear.png&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>    
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="n">y_test</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;y_test&quot;</span><span class="p">,</span><span class="s2">&quot;y_pred&quot;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;X_test vs y_test and y_pred&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;X_test&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>   
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;../results/X_test_VS_y_test_&amp;_y_pred_linear.png&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>    </div>
+    
+<div class="viewcode-block" id="print_MSE"><a class="viewcode-back" href="../../../modules.modelling.html#modules.modelling.linearRegression.print_MSE">[docs]</a><span class="nd">@lD</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logBase</span> <span class="o">+</span> <span class="s1">&#39;.plot_graphs&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">print_MSE</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span><span class="n">y_pred</span><span class="p">,</span><span class="n">y_test</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This function helps us to print Mean Square Error on the predicts values vs actual values.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        logger : {logging.Logger}</span>
+<span class="sd">        The logger used for loggin error</span>
+<span class="sd">        </span>
+<span class="sd">        y_pred : The predicted values of the target variable using the model on the test dataset</span>
+<span class="sd">        y_test : The actual traget variable values of the given the test datset</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean Squared Error for the given y_predicted and y_test is :&quot;</span><span class="p">,</span><span class="n">mse</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span><span class="n">y_test</span><span class="p">))</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../modules.modelling.html#modules.modelling.linearRegression.main">[docs]</a><span class="nd">@lD</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logBase</span> <span class="o">+</span> <span class="s1">&#39;.main&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">resultsDict</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;main function for modelling</span>
+<span class="sd">    </span>
+<span class="sd">    This function finishes all the tasks for the</span>
+<span class="sd">    main function. This is a way in which a </span>
+<span class="sd">    particular module is going to be executed. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logger : {logging.Logger}</span>
+<span class="sd">        The logger used for logging error information</span>
+<span class="sd">    resultsDict: {dict}</span>
+<span class="sd">        A dictionary containing information about the </span>
+<span class="sd">        command line arguments. These can be used for</span>
+<span class="sd">        overwriting command line arguments as needed.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">dataExtraction</span><span class="p">()</span>
+    <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">modelBuilder</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+    <span class="n">print_coefficients</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">print_MSE</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+    <span class="n">plot_graphs</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Author.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

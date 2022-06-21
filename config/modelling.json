@@ -1,0 +1,5 @@
+{
+    "linearRegression":{
+        "dataPath":"../data/raw_data/dummyData.csv"
+    }
+}
