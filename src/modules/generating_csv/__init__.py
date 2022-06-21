@@ -1,5 +1,7 @@
-'''[implementation of linear lasso and ridge regression]
+'''[one line description of the module]
 
+[this is a 
+multiline description of what the module does.] 
 
 Before you Begin
 ================

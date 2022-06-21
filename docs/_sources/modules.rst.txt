@@ -9,6 +9,7 @@ Subpackages
 
    modules.cohort_selection
    modules.data_processing
+   modules.generating_csv
    modules.modelling
    modules.report_generation
 

@@ -1,0 +1,21 @@
+modules.generating\_csv package
+===============================
+
+Submodules
+----------
+
+modules.generating\_csv.generate\_csv module
+--------------------------------------------
+
+.. automodule:: modules.generating_csv.generate_csv
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: modules.generating_csv
+   :members:
+   :undoc-members:
+   :show-inheritance:
